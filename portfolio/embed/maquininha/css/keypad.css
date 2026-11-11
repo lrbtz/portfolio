@@ -1,0 +1,105 @@
+/* Keypad, amount display, quick amounts and PIN dots (css/keypad.css) */
+
+.vt-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+}
+
+.vt-key {
+    min-height: 64px;
+    border: 0;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--vt-midnight);
+    font-size: 34px;
+    font-weight: 400;
+    font-family: inherit;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.08s ease;
+}
+.vt-key:hover { background: var(--vt-silk); }
+.vt-key:active { background: var(--vt-rose-primary); }
+
+.vt-key--aux { font-size: 17px; font-weight: 600; color: var(--vt-text-secondary); }
+.vt-key--aux sf-symbol { font-size: 26px; color: var(--vt-midnight); }
+
+.vt-amount {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.vt-amount__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.vt-amount__value {
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.vt-amount--empty .vt-amount__value { color: var(--vt-rose-primary); }
+
+.vt-amount--invalid .vt-amount__value {
+    color: var(--vt-danger);
+    animation: vt-shake 0.3s ease;
+}
+
+.vt-chips { display: flex; justify-content: center; gap: 10px; }
+
+.vt-chip {
+    min-height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--vt-rose-secondary);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--vt-midnight);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+.vt-chip:hover { background: var(--vt-silk); }
+.vt-chip:active { background: var(--vt-rose-primary); }
+
+.vt-pin {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 12px 0;
+}
+
+.vt-pin__dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--vt-midnight);
+    background: transparent;
+}
+.vt-pin__dot--filled { background: var(--vt-midnight); }
+
+@keyframes vt-shake {
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-key { transition: none; }
+    .vt-amount--invalid .vt-amount__value { animation: none; }
+}

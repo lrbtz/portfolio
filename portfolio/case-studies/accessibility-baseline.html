@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trustworthy Accessibility Baseline | Lara Oliveira</title>
+  <link rel="icon" type="image/png" href="../assets/logo-mark.png" />
+  <link rel="alternate" hreflang="pt-BR" href="../pt/case-studies/accessibility-baseline.html" />
+  <link rel="alternate" hreflang="en" href="accessibility-baseline.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+  />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">
+        <img src="../assets/logo-mark.png" alt="Lara Oliveira" class="logo-mark" />
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="../index.html#work">Work</a>
+        <a href="../index.html#process">Process</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+      <div class="header-actions">
+        <div class="lang-switch" aria-label="Language">
+          <a href="../pt/case-studies/accessibility-baseline.html" class="lang-link">PT</a>
+          <span class="lang-link active" aria-current="page">EN</span>
+        </div>
+        <a href="../assets/cv/Lara-Oliveira-Resume-EN.pdf" class="btn-outline" target="_blank" rel="noopener noreferrer" aria-label="View resume">View resume<span class="sr-only"> (opens in a new tab)</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5l7-7M4 2.5h5.5V8"/></svg>
+        </a>
+        <div class="contact-menu">
+          <button type="button" class="btn-cta contact-trigger" aria-expanded="false" aria-controls="contact-panel">Let's talk!
+            <svg class="contact-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+          </button>
+          <div class="contact-panel" id="contact-panel" hidden>
+            <a class="contact-item" href="https://www.linkedin.com/in/lara-beatriz-de-oliveira/" target="_blank" rel="noopener noreferrer">
+              <span class="contact-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg></span>
+              <span class="contact-text"><strong>LinkedIn</strong><span class="contact-hint">Connect with me</span></span>
+              <svg class="contact-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10 10 4M5 4h5v5"/></svg>
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+            <a class="contact-item" href="mailto:lara.bia@outlook.com.br">
+              <span class="contact-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg></span>
+              <span class="contact-text"><strong>Send an email</strong><span class="contact-hint">Opens your email app</span></span>
+              <svg class="contact-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10 10 4M5 4h5v5"/></svg>
+            </a>
+            <button type="button" class="contact-item" data-copy="lara.bia@outlook.com.br" data-copied-label="Copied!">
+              <span class="contact-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></span>
+              <span class="contact-text"><strong>lara.bia@outlook.com.br</strong><span class="contact-hint" aria-live="polite">Click to copy</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article>
+      <header class="case-header">
+        <div class="container">
+          <a href="../index.html#work" class="back-link">&larr; All case studies</a>
+          <h1>Trustworthy Accessibility Baseline</h1>
+          <p class="hook">
+            To understand how accessibility was being addressed across projects, a colleague and I surveyed 42 initiatives and identified gaps in how it was measured and verified. Based on the research findings, we developed a practical checklist for designers, developers, and QA teams and applied it to a pilot project. The research was later formalized into a paper proposing a WCAG Level A baseline for digital accessibility.
+          </p>
+          <dl class="case-meta">
+            <div>
+              <dt>Role</dt>
+              <dd>UI/UX Designer</dd>
+            </div>
+            <div>
+              <dt>Context</dt>
+              <dd>Brazilian R&amp;D institute building digital solutions for clients worldwide</dd>
+            </div>
+            <div>
+              <dt>Collaborators</dt>
+              <dd>Myself and a colleague (co-author)</dd>
+            </div>
+          </dl>
+        </div>
+      </header>
+
+      <div class="container case-body">
+        <div class="case-layout">
+          <aside class="case-sidebar">
+            <nav aria-labelledby="toc-heading">
+              <p class="sidebar-label" id="toc-heading">On this page</p>
+              <a href="#overview">Overview</a>
+              <a href="#problem">The Problem</a>
+              <a href="#discovery">Research &amp; Discovery</a>
+              <a href="#checklist">The Checklist</a>
+              <a href="#pilot">Pilot Audit</a>
+              <a href="#impact">Impact &amp; Learnings</a>
+            </nav>
+          </aside>
+
+          <div class="case-content">
+            <section id="overview" class="case-section">
+              <h2>Overview</h2>
+              <div class="section-body">
+                <p>
+                  Digital products are meant to work for everyone, with or
+                  without disabilities, yet organizations rarely turn that
+                  commitment into a practice they can check. This
+                  practice-based study, developed in a Brazilian research and
+                  development institute that works like a software house, asks how accessibility guidelines are
+                  handled in practice, how that compares with the market, and
+                  what it means for trust between products and the people who
+                  use them.
+                </p>
+                <p>
+                  I was the <strong>accessibility ambassador</strong> at the company, driving the effort to create an accessibility baseline for all of its digital projects.
+                </p>
+                <p>
+                  The work moved through four steps: <strong>map</strong> current
+                  practice with a survey, read the <strong>maturity</strong> it
+                  revealed, <strong>build a checklist</strong> around WCAG 2.2 Level A, and
+                  <strong>audit a pilot project</strong> with it.
+                </p>
+                <div class="paper-stats" role="list">
+                  <div role="listitem"><strong>42</strong><span>projects surveyed</span></div>
+                  <div role="listitem"><strong>41</strong><span>never audited</span></div>
+                  <div role="listitem"><strong>0</strong><span>CI/CD pipelines with accessibility checks</span></div>
+                  <div role="listitem"><strong>912</strong><span>checklist occurrences audited</span></div>
+                </div>
+                <div class="paper-card">
+                  <div>
+                    <p class="paper-card__label">Research paper</p>
+                    <h3>Establishing a Trustworthy Accessibility Baseline: A WCAG-Driven Checklist for Auditable Practice in Digital Projects</h3>
+                    <p class="paper-card__meta">Submitted to The 16th European Academy of Design Conference (EAD27): Trust · Distrust. Not yet accepted.</p>
+                  </div>
+                  <!-- Enable once the paper is accepted: remove the hidden attribute. -->
+                  <a href="../assets/papers/trustworthy-accessibility-baseline.pdf" class="btn-outline paper-download" download hidden aria-label="Download the paper (PDF)">Download paper (PDF)
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2v7M2.75 6 6 9.25 9.25 6"/></svg>
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            <section id="problem" class="case-section">
+              <h2>The Problem</h2>
+              <div class="section-body">
+                <p>
+                  The institute works on a project-based model, serving clients in
+                  agribusiness, healthcare, logistics, and more. Accessibility
+                  appeared in its ESG reports under Diversity, Equity and
+                  Inclusion, through actions such as sign language interpreters
+                  and video captions, but it stayed
+                  <strong>socially framed and technically undefined</strong>: no
+                  dedicated goals, no audit indicators, no reference to
+                  technical standards for digital solutions.
+                </p>
+                <p>
+                  That matters because users rarely see how a product was
+                  built, so they read the interface itself. An interface that
+                  fails basic criteria signals that some people who could use it
+                  were not considered, which erodes trust in the institution
+                  behind it. Around 1.3 billion people, about 16% of the global
+                  population, live with significant disability (WHO, 2023).
+                </p>
+              </div>
+            </section>
+
+            <section id="discovery" class="case-section">
+              <h2>Research &amp; Discovery</h2>
+              <div class="section-body">
+                <p>
+                  I started by mapping practice with an 11-item questionnaire on
+                  the technical stack, design system, and accessibility tools.
+                  It went to 58 active projects and 42 answered (72%) in June
+                  2026. The same pattern showed up in every dimension:
+                  <strong>formal practice was almost entirely absent, even where
+                  the infrastructure already existed.</strong>
+                </p>
+                <ul>
+                  <li>79% had no accessibility tool, or didn&rsquo;t know whether they did.</li>
+                  <li>74% applied no WCAG level, or didn&rsquo;t know; only 4 of 42 reported Level AA.</li>
+                  <li>No project ran automated accessibility testing, and 41 of 42 had never been audited.</li>
+                  <li>81% already had a CI/CD pipeline, but none included accessibility checks.</li>
+                </ul>
+                <p>
+                  The market looks similar. Two Brazilian and Portuguese surveys
+                  show broad recognition (51% name inclusion of people with
+                  disabilities as a focus) but thinner practice: compliance
+                  checking tends to be reactive, and only about a quarter report
+                  regular evaluations by specialists. The gap is less about
+                  doing accessibility work than about <strong>verifying</strong> it.
+                </p>
+              </div>
+            </section>
+
+            <section id="checklist" class="case-section">
+              <h2>The Checklist</h2>
+              <div class="section-body">
+                <p>
+                  Because maturity was low, advanced criteria would not have
+                  stuck. I proposed <strong>WCAG 2.2 Level A</strong> as the
+                  baseline for every project: the most fundamental requirements,
+                  organized by the POUR principles (Perceivable, Operable,
+                  Understandable, Robust), with documented techniques that also
+                  help close the knowledge gap.
+                </p>
+                <p>
+                  On top of it we built a checklist tailored to the product
+                  pipeline, so designers, developers, and QA
+                  each have their own criteria for any new feature, from design
+                  through test validation. The UI/UX checklist has 27 items, for
+                  example:
+                </p>
+                <ul>
+                  <li>Every image, icon, or captcha has alternative text.</li>
+                  <li>Color is never the only indicator of error, status, or action.</li>
+                  <li>Interactive elements are keyboard-accessible, with visible focus and a logical tab order.</li>
+                  <li>Form fields have clear labels and instructions, and errors use color, icon, and text.</li>
+                  <li>Non-applicable items are marked N/A with a justification.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section id="pilot" class="case-section">
+              <h2>Pilot Audit</h2>
+              <div class="section-body">
+                <p>
+                  We applied the UI/UX checklist to a pilot project in the middle of
+                  migrating its Design System from version 1 to 2, across 59
+                  prototype screens. The evaluation was AI-assisted and its
+                  results are treated as provisional while human review
+                  continues. It produced 912 audited occurrences:
+                </p>
+                <ul>
+                  <li><strong>339 failed</strong> (37.2%)</li>
+                  <li><strong>289 need attention</strong> (31.7%), partial compliance or a pending design decision</li>
+                  <li><strong>134 flagged as dev requirements</strong> (14.7%)</li>
+                  <li><strong>90 compliant</strong> (9.9%) and 60 not applicable (6.6%)</li>
+                </ul>
+                <p>
+                  The most useful result: <strong>51.3% of the failures came from
+                  the Design System itself or from using its components
+                  incorrectly.</strong> Those are fixable once in the shared
+                  library instead of screen by screen, so the problem is less
+                  about isolated screen-level decisions than about gaps in the
+                  component library and how it is used.
+                </p>
+              </div>
+            </section>
+
+            <section id="impact" class="case-section">
+              <h2>Impact &amp; Learnings</h2>
+              <div class="section-body">
+                <ul>
+                  <li>
+                    A shared, auditable reference (WCAG 2.2 Level A) and a
+                    checklist that make accessibility expected and
+                    verifiable across teams.
+                  </li>
+                  <li>
+                    Evidence that a first-pass AI-assisted audit is feasible,
+                    as long as it stays under human review.
+                  </li>
+                  <li>
+                    A clear next path: with the checklist already integrated into
+                    company processes, audit projects that never had one, and add
+                    automated accessibility checks to the CI/CD pipelines that
+                    already exist.
+                  </li>
+                </ul>
+                <p class="callout">
+                  <strong>Key takeaway: </strong>
+                  WCAG is not only a technical checklist. It is a design act of
+                  trust-building, because trust does not come from having
+                  standards or policies, it comes from the everyday, verifiable
+                  practice those standards produce.
+                </p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <nav class="next-case" aria-label="Next case study">
+      <div class="container">
+        <a href="project-configuration-snapshots.html">
+          <span class="next-label">Next case study</span>
+          <span class="next-title">Formulation Snapshots <span aria-hidden="true">&rarr;</span></span>
+        </a>
+      </div>
+    </nav>
+  </main>
+
+  <footer id="contact" class="site-footer">
+    <div class="container footer-contact">
+      <p class="section-label">Contact</p>
+      <h2>Let's talk</h2>
+      <div class="footer-email-row">
+        <a href="mailto:lara.bia@outlook.com.br" class="footer-email">lara.bia@outlook.com.br</a>
+        <button type="button" class="footer-copy" data-copy="lara.bia@outlook.com.br" data-copied-label="Copied!">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
+          <span class="copy-label" aria-live="polite">Copy email</span>
+        </button>
+      </div>
+      <div class="footer-actions">
+        <a href="../assets/cv/Lara-Oliveira-Resume-EN.pdf" class="btn-outline" target="_blank" rel="noopener noreferrer" aria-label="View resume">View resume<span class="sr-only"> (opens in a new tab)</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9.5l7-7M4 2.5h5.5V8"/></svg>
+        </a>
+        <p class="footer-also"><a href="https://www.linkedin.com/in/lara-beatriz-de-oliveira/" target="_blank" rel="noopener noreferrer">LinkedIn <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10 10 4M5 4h5v5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Lara Oliveira. All rights reserved.
+    </div>
+  </footer>
+  <script src="../script.js" defer></script>
+</body>
+</html>

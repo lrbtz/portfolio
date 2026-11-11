@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment app prototype</title>
+    <link rel="stylesheet" href="vendor/monalisa.min.css">
+    <link rel="stylesheet" href="vendor/sf-symbols/default.css">
+    <link rel="stylesheet" href="vendor/sf-symbols/replace.css">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* Standalone embed: just the terminal and simulator, no canvas chrome */
+        html, body { margin: 0; overflow: hidden; background: transparent; }
+        body { padding: 16px; }
+        /* Natural size so the script below can scale the whole thing down to fit the frame */
+        .vt-page { width: max-content; margin: 0; transform-origin: 0 0; }
+    </style>
+</head>
+<body>
+
+        <div class="vt-page">
+
+            <!-- Phone with the app. Screen content is rendered by js/screens.js from the templates below. -->
+            <div class="vt-device">
+                <div class="vt-terminal" id="vt-terminal">
+                    <span class="vt-island" aria-hidden="true"></span>
+                    <div class="vt-statusbar" aria-hidden="true">
+                        <time class="vt-statusbar__time" id="vt-clock"></time>
+                        <span class="vt-statusbar__icons">
+                            <sf-symbol name="cellularbars"></sf-symbol>
+                            <sf-symbol name="wifi"></sf-symbol>
+                            <sf-symbol name="battery.100"></sf-symbol>
+                        </span>
+                    </div>
+                    <main class="vt-screen" id="vt-screen" tabindex="-1"></main>
+
+                    <!-- Cancel confirmation (bottom sheet). Native <dialog> (non-modal show()) so it stays inside the phone screen;
+                         MDS .modal-overlay auto-closes on click and would cover the whole page instead. -->
+                    <div class="vt-dialog-layer" id="vt-dialog-layer" hidden>
+                        <dialog class="vt-dialog" id="vt-cancel-dialog" aria-labelledby="vt-dialog-title" aria-describedby="vt-dialog-text">
+                            <p class="vt-dialog__title" id="vt-dialog-title" data-i18n="cancelDialog.title"></p>
+                            <p class="vt-dialog__text" id="vt-dialog-text" data-i18n="cancelDialog.text"></p>
+                            <div class="vt-dialog__actions">
+                                <button type="button" class="btn btn--primary btn--medium vt-btn" id="vt-dialog-resume" data-i18n="cancelDialog.resume"></button>
+                                <button type="button" class="btn btn--danger btn--medium vt-btn" id="vt-dialog-confirm" data-i18n="cancelDialog.confirm"></button>
+                            </div>
+                        </dialog>
+                    </div>
+
+                    <div class="vt-sr-only" id="vt-status" role="status" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <!-- Simulator: stands in for the physical world around the phone (card, customer, network). -->
+            <aside class="vt-sim" aria-labelledby="vt-sim-title">
+                <p class="vt-sim__title" id="vt-sim-title" data-i18n="sim.title"></p>
+
+                <div class="vt-sim__group">
+                    <p class="vt-sim__label" data-i18n="sim.cardLabel"></p>
+                    <div class="vt-sim__buttons">
+                        <button type="button" class="btn btn--secondary btn--medium" data-card-entry="contactless" disabled>
+                            <sf-symbol name="wave.3.right"></sf-symbol> <span data-i18n="sim.tap"></span>
+                        </button>
+                        <button type="button" class="btn btn--secondary btn--medium" data-card-entry="chip" disabled>
+                            <sf-symbol name="creditcard"></sf-symbol> <span data-i18n="sim.insert"></span>
+                        </button>
+                        <button type="button" class="btn btn--secondary btn--medium" data-card-entry="swipe" disabled>
+                            <sf-symbol name="arrow.left.and.right"></sf-symbol> <span data-i18n="sim.swipe"></span>
+                        </button>
+                    </div>
+                    <p class="vt-sim__hint" id="vt-sim-card-hint" data-i18n="sim.cardHintIdle"></p>
+                </div>
+
+                <div class="vt-sim__group">
+                    <p class="vt-sim__label" data-i18n="sim.outcomeLabel"></p>
+                    <label class="radio">
+                        <input type="radio" name="vt-outcome" class="radio__input" value="approved" checked>
+                        <span class="radio__circle"></span>
+                        <span class="radio__label" data-i18n="sim.outcomeApproved"></span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="vt-outcome" class="radio__input" value="declined">
+                        <span class="radio__circle"></span>
+                        <span class="radio__label" data-i18n="sim.outcomeDeclined"></span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="vt-outcome" class="radio__input" value="timeout">
+                        <span class="radio__circle"></span>
+                        <span class="radio__label" data-i18n="sim.outcomeTimeout"></span>
+                    </label>
+                </div>
+
+                <p class="vt-sim__hint" data-i18n="sim.pinHint"></p>
+
+                <button type="button" class="btn btn--secondary btn--medium" id="vt-sim-reset">
+                    <sf-symbol name="arrow.counterclockwise"></sf-symbol> <span data-i18n="sim.reset"></span>
+                </button>
+            </aside>
+        </div>
+    
+
+
+    <!-- 2. HANDLEBARS TEMPLATES: siblings of page-content, NEVER nested inside it.
+         Partials are registered by js/components.js (ids starting with "partial-"),
+         screens are rendered by js/screens.js (ids starting with "screen-"). -->
+
+    <!-- PARTIAL: notification (MDS structure, PT-BR labels) -->
+    <script id="partial-notification" type="text/x-handlebars-template">
+        <div class="notification notification--{{variant}}" role="{{#if (eq variant 'error')}}alert{{else}}status{{/if}}">
+            <div class="notification__icon">
+                {{#if (eq variant 'success')}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M23.0257412,59.1307272 C24.5026589,59.1307272 25.6648942,58.4873366 26.4984,57.2080166 L59.0437413,5.97056472 C59.6946354,4.96856471 59.9212236,4.1790353 59.9212236,3.38950589 C59.9212236,1.51757647 58.6852236,0.244941177 56.7766589,0.244941177 C55.4093648,0.244941177 54.641506,0.705670589 53.8154824,2.02898824 L22.8721412,51.3199977 L6.81741178,30.2898353 C5.94741177,29.1126353 5.10649413,28.6154118 3.84134118,28.6154118 C1.92536471,28.6154118 0.550588236,29.9536236 0.550588236,31.8621177 C0.550588236,32.6665412 0.894282354,33.5440236 1.55258824,34.3849412 L19.421153,57.1349507 C20.4887294,58.5022377 21.5414118,59.1307272 23.0257412,59.1307272 Z" transform="translate(2 2.353)"/></svg>
+                {{else if (eq variant 'warning')}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M7.76688351,54.1104467 L51.8532525,54.1104467 C56.6832525,54.1104467 59.6145147,50.7374214 59.6145147,46.3800816 C59.6145147,45.0556428 59.227136,43.6586156 58.5013108,42.3883282 L36.4373884,3.95708739 C34.95667,1.39427185 32.4239709,0.083300971 29.8131554,0.083300971 C27.1961651,0.083300971 24.6333496,1.39427185 23.1827476,3.95708739 L1.11865049,42.3883282 C0.362592234,43.6887612 0.00582524273,45.0556428 0.00582524273,46.3800816 C0.00582524273,50.7374214 2.93717476,54.1104467 7.76688351,54.1104467 Z M7.80317477,49.6260409 C5.82195147,49.6260409 4.59294176,48.0759403 4.59294176,46.373936 C4.59294176,45.8099185 4.73257282,45.1370214 5.04195146,44.5668583 L27.0697573,6.11778642 C27.6633496,5.08194176 28.7533107,4.60398059 29.8131554,4.60398059 C30.8367088,4.60398059 31.8965535,5.08194176 32.5202622,6.11778642 L54.5483011,44.5970098 C54.8576215,45.1671671 54.9968448,45.8099185 54.9968448,46.373936 C54.9968448,48.0759403 53.7683011,49.6260409 51.7867865,49.6260409 L7.80317477,49.6260409 Z M29.8069806,34.925534 C31.153136,34.925534 31.9381457,34.1584078 31.9682622,32.6670874 L32.3909418,17.6636505 C32.4210583,16.2326214 31.2681263,15.1400389 29.7768641,15.1400389 C28.2252525,15.1400389 27.1627865,16.2025049 27.1929612,17.6334758 L27.5552913,32.6670874 C27.5854661,34.1282331 28.3704758,34.925534 29.8069806,34.925534 Z M29.8069806,44.17027 C31.4563399,44.17027 32.851602,42.8771476 32.851602,41.2160972 C32.851602,39.5427962 31.4865146,38.2619418 29.8069806,38.2619418 C28.1336797,38.2619418 26.7322428,39.5729127 26.7322428,41.2160972 C26.7322428,42.847002 28.1637962,44.17027 29.8069806,44.17027 Z" transform="translate(2 4.913)"/></svg>
+                {{else}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M1.60500048,58.4772309 C2.91892453,59.7518284 5.05097517,59.7518284 6.33360808,58.4772309 L30.041279,34.7222663 L53.7962664,58.4772309 C55.0315828,59.7518284 57.2029752,59.7518284 58.4856081,58.4772309 C59.7601904,57.1553155 59.7601904,55.0232284 58.4856081,53.7799221 L34.7305448,30.0329246 L58.4856081,6.32525365 C59.7601904,5.04262074 59.7994563,2.87122833 58.4856081,1.59664605 C57.1636335,0.353354908 55.0315828,0.353354908 53.7962664,1.59664605 L30.041279,25.3436587 L6.33360808,1.59664605 C5.05097517,0.353354908 2.87958276,0.314013136 1.60500048,1.59664605 C0.361709338,2.9105701 0.361709338,5.04262074 1.60500048,6.32525365 L25.3519372,30.0329246 L1.60500048,53.7799221 C0.361709338,55.0232284 0.322367566,57.1946223 1.60500048,58.4772309 Z" transform="translate(2 2)"/></svg>
+                {{/if}}
+            </div>
+            <div class="notification__content">
+                <div class="notification__message">{{{message}}}</div>
+            </div>
+            <button type="button" class="notification__close" data-action="DISMISS_NOTICE" aria-label="{{t 'common.close'}}">×</button>
+        </div>
+    </script>
+
+    <!-- PARTIAL: numeric keypad (shared by amount entry and PIN) -->
+    <script id="partial-keypad" type="text/x-handlebars-template">
+        <div class="vt-keypad" role="group" aria-label="{{t 'keypad.label'}}">
+            <button type="button" class="vt-key" data-key="1">1</button>
+            <button type="button" class="vt-key" data-key="2">2</button>
+            <button type="button" class="vt-key" data-key="3">3</button>
+            <button type="button" class="vt-key" data-key="4">4</button>
+            <button type="button" class="vt-key" data-key="5">5</button>
+            <button type="button" class="vt-key" data-key="6">6</button>
+            <button type="button" class="vt-key" data-key="7">7</button>
+            <button type="button" class="vt-key" data-key="8">8</button>
+            <button type="button" class="vt-key" data-key="9">9</button>
+            <button type="button" class="vt-key vt-key--aux" data-key="clear">{{t 'keypad.clear'}}</button>
+            <button type="button" class="vt-key" data-key="0">0</button>
+            <button type="button" class="vt-key vt-key--aux" data-key="backspace" aria-label="{{t 'keypad.backspace'}}"><sf-symbol name="delete.left"></sf-symbol></button>
+        </div>
+    </script>
+
+    <!-- PARTIAL: amount display -->
+    <script id="partial-amount-display" type="text/x-handlebars-template">
+        <div class="vt-amount{{#if invalid}} vt-amount--invalid{{/if}}{{#if empty}} vt-amount--empty{{/if}}">
+            <span class="vt-amount__label">{{label}}</span>
+            <output class="vt-amount__value">{{amountText}}</output>
+        </div>
+    </script>
+
+    <!-- PARTIAL: PIN dots (never renders the real digits) -->
+    <script id="partial-pin-input" type="text/x-handlebars-template">
+        <div class="vt-pin" role="img" aria-label="{{ariaLabel}}">
+            {{#each dots}}<span class="vt-pin__dot{{#if filled}} vt-pin__dot--filled{{/if}}"></span>{{/each}}
+        </div>
+    </script>
+
+    <!-- PARTIAL: loading state (MDS loader) -->
+    <script id="partial-loader" type="text/x-handlebars-template">
+        <div class="loader vt-loader">
+            <div class="loader__spinner{{#if large}} loader__spinner--large{{/if}}"></div>
+            {{#if text}}<span class="loader__text{{#if large}} loader__text--large{{/if}}">{{text}}</span>{{/if}}
+        </div>
+    </script>
+
+    <!-- PARTIAL: top bar (back chevron + optional visible title; the title element is always present for screen readers) -->
+    <script id="partial-topbar" type="text/x-handlebars-template">
+        <div class="vt-topbar">
+            {{#if showBack}}<button type="button" class="vt-topbar__back" data-action="BACK" aria-label="{{t 'common.back'}}"><sf-symbol name="chevron.left"></sf-symbol></button>{{else}}<span class="vt-topbar__spacer"></span>{{/if}}
+            <p class="vt-topbar__title{{#if hideTitle}} vt-sr-only{{/if}}" id="vt-title" role="heading" aria-level="1">{{title}}</p>
+            <span class="vt-topbar__spacer"></span>
+        </div>
+    </script>
+
+    <!-- PARTIAL: segmented control (each item carries its own action) -->
+    <script id="partial-segmented" type="text/x-handlebars-template">
+        <div class="vt-segmented" role="group" aria-label="{{label}}">
+            {{#each items}}<button type="button" class="vt-segmented__item{{#if active}} vt-segmented__item--active{{/if}}" data-action="{{action}}" data-value="{{value}}" aria-pressed="{{#if active}}true{{else}}false{{/if}}">{{label}}</button>{{/each}}
+        </div>
+    </script>
+
+    <!-- PARTIAL: radio row (credit type, installments) -->
+    <script id="partial-radio-row" type="text/x-handlebars-template">
+        <button type="button" class="vt-radio{{#if selected}} vt-radio--selected{{/if}}" role="radio" aria-checked="{{#if selected}}true{{else}}false{{/if}}" data-action="{{action}}" data-value="{{value}}"{{#if disabled}} disabled{{/if}}>
+            <span class="vt-radio__dot" aria-hidden="true"></span>
+            <span class="vt-radio__text">
+                <span class="vt-radio__label">{{label}}</span>
+                {{#if hint}}<span class="vt-radio__hint">{{hint}}</span>{{/if}}
+            </span>
+            {{#if trailingIcon}}<sf-symbol name="{{trailingIcon}}" aria-hidden="true"></sf-symbol>{{/if}}
+        </button>
+    </script>
+
+    <!-- PARTIAL: setting row with MDS switch -->
+    <script id="partial-setting-toggle" type="text/x-handlebars-template">
+        <div class="vt-setting">
+            <span class="vt-setting__label">{{label}}{{#if help}} <sf-symbol class="vt-setting__help" name="info.circle" aria-label="{{help}}" role="img"></sf-symbol>{{/if}}</span>
+            {{#if stateText}}<span class="vt-setting__state" aria-hidden="true">{{stateText}}</span>{{/if}}
+            <label class="switch vt-switch">
+                <input type="checkbox" class="switch__input" data-action="TOGGLE_OPTION" data-value="{{value}}"{{#if checked}} checked{{/if}}>
+                <span class="switch__slider"></span>
+                <span class="switch__label vt-sr-only">{{label}}</span>
+            </label>
+        </div>
+    </script>
+
+    <!-- PARTIAL: primary call to action (pill with contactless icon) -->
+    <script id="partial-cta" type="text/x-handlebars-template">
+        <button type="button" class="vt-cta{{#if variant}} vt-cta--{{variant}}{{/if}}" data-action="{{action}}"{{#if value}} data-value="{{value}}"{{/if}}{{#if disabled}} disabled{{/if}}>
+            <span class="vt-cta__icon" aria-hidden="true"><sf-symbol name="{{#if icon}}{{icon}}{{else}}wave.3.right{{/if}}"></sf-symbol></span>
+            <span class="vt-cta__label">{{label}}</span>
+        </button>
+    </script>
+
+    <!-- PARTIAL: transaction summary rows -->
+    <script id="partial-transaction-summary" type="text/x-handlebars-template">
+        <dl class="vt-rows{{#if flat}} vt-rows--flat{{/if}}">
+            {{#each rows}}
+            <div class="vt-rows__item{{#if strong}} vt-rows__item--strong{{/if}}">
+                <dt>{{label}}</dt>
+                <dd>{{value}}</dd>
+            </div>
+            {{/each}}
+        </dl>
+    </script>
+
+    <!-- PARTIAL: action buttons row -->
+    <script id="partial-actions" type="text/x-handlebars-template">
+        <div class="vt-view__actions">
+            {{#each actions}}
+            <button type="button" class="btn btn--{{kind}} btn--medium vt-btn" {{#if ui}}data-ui="{{ui}}"{{else}}data-action="{{action}}"{{/if}}{{#if disabled}} disabled{{/if}}>{{#if icon}}<sf-symbol name="{{icon}}"></sf-symbol> {{/if}}{{label}}</button>
+            {{/each}}
+        </div>
+    </script>
+
+    <!-- SCREEN: home (Crédito, Débito, Pix, Voucher + menu) -->
+    <script id="screen-home" type="text/x-handlebars-template">
+        <section class="vt-view vt-view--home" aria-labelledby="vt-title">
+            <img class="vt-home__logo" src="assets/proofline.svg" alt="Proofline">
+            <p class="vt-home__title vt-sr-only" id="vt-title" role="heading" aria-level="1">{{t 'home.title'}}</p>
+            <div class="vt-view__message">{{#if notice}}{{> notification variant='warning' message=notice}}{{/if}}</div>
+            <div class="vt-home__main">
+                <ul class="vt-list">
+                    <li><button type="button" class="vt-list__item" data-action="START_SALE" data-value="credit">
+                        <span class="vt-list__icon" aria-hidden="true"><sf-symbol name="creditcard"></sf-symbol></span>
+                        <span class="vt-list__text"><span class="vt-list__title">{{t 'home.credit'}}</span><span class="vt-list__sub">{{t 'home.creditText'}}</span></span>
+                        <sf-symbol name="chevron.right" aria-hidden="true"></sf-symbol>
+                    </button></li>
+                    <li><button type="button" class="vt-list__item" data-action="START_SALE" data-value="debit">
+                        <span class="vt-list__icon" aria-hidden="true"><sf-symbol name="creditcard.fill"></sf-symbol></span>
+                        <span class="vt-list__text"><span class="vt-list__title">{{t 'home.debit'}}</span><span class="vt-list__sub">{{t 'home.debitText'}}</span></span>
+                        <sf-symbol name="chevron.right" aria-hidden="true"></sf-symbol>
+                    </button></li>
+                    <li><button type="button" class="vt-list__item" data-action="START_SALE" data-value="pix">
+                        <span class="vt-list__icon" aria-hidden="true"><sf-symbol name="qrcode"></sf-symbol></span>
+                        <span class="vt-list__text"><span class="vt-list__title">{{t 'home.pixTitle'}}</span><span class="vt-list__sub">{{t 'home.pixText'}}</span></span>
+                        <sf-symbol name="chevron.right" aria-hidden="true"></sf-symbol>
+                    </button></li>
+                    <li><button type="button" class="vt-list__item" data-action="START_SALE" data-value="voucher">
+                        <span class="vt-list__icon" aria-hidden="true"><sf-symbol name="ticket"></sf-symbol></span>
+                        <span class="vt-list__text"><span class="vt-list__title">{{t 'home.voucherTitle'}}</span><span class="vt-list__sub">{{t 'home.voucherText'}}</span></span>
+                        <sf-symbol name="chevron.right" aria-hidden="true"></sf-symbol>
+                    </button></li>
+                </ul>
+            </div>
+            <nav class="vt-tabbar" aria-label="{{t 'home.tabs.label'}}">
+                <div class="vt-tabbar__pill">
+                    <button type="button" class="vt-tabbar__tab vt-tabbar__tab--current" aria-current="page"><sf-symbol name="house" aria-hidden="true"></sf-symbol><span>{{t 'home.tabs.home'}}</span></button>
+                    <button type="button" class="vt-tabbar__tab" hidden data-ui="tab-notice"><sf-symbol name="list.bullet.rectangle" aria-hidden="true"></sf-symbol><span>{{t 'home.tabs.transactions'}}</span></button>
+                    <button type="button" class="vt-tabbar__tab" hidden data-action="START_REFUND"><sf-symbol name="arrow.uturn.backward" aria-hidden="true"></sf-symbol><span>{{t 'home.tabs.refund'}}</span></button>
+                </div>
+            </nav>
+        </section>
+    </script>
+
+    <!-- SCREEN: amount entry -->
+    <script id="screen-amount" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=title}}
+            {{> amount-display label=amountLabel amountText=amountText invalid=invalid empty=empty}}
+            <div class="vt-view__message">{{#if errorMessage}}{{> notification variant='error' message=errorMessage}}{{/if}}</div>
+            {{> keypad}}
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: refund list / search results ("Estorno") -->
+    <script id="screen-refund-list" type="text/x-handlebars-template">
+        <section class="vt-view vt-view--refund" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=title}}
+            {{#if header}}
+            <div class="vt-refund-period">
+                <p class="vt-refund-period__title">{{header.title}}</p>
+                {{#each header.rows}}<p class="vt-refund-period__row"><span>{{label}}</span><span>{{value}}</span></p>{{/each}}
+            </div>
+            {{/if}}
+            {{#if hint}}<p class="vt-refund-hint">{{hint}}</p>{{/if}}
+            <div class="vt-view__body vt-refund-list">
+                {{#each cards}}
+                <article class="vt-tx">
+                    <header class="vt-tx__head"><span class="vt-tx__value">{{valueText}}</span><span class="vt-tx__aut">{{t 'refund.aut'}} {{aut}}</span></header>
+                    <div class="vt-tx__meta">
+                        <div class="vt-tx__when">
+                            <p><sf-symbol name="calendar" aria-hidden="true"></sf-symbol> {{dateText}}</p>
+                            <p><sf-symbol name="clock" aria-hidden="true"></sf-symbol> {{timeText}}</p>
+                        </div>
+                        <div class="vt-tx__card">
+                            <p><span class="vt-tx__mc" aria-hidden="true"></span>{{mask}}</p>
+                            <p>{{typeText}}</p>
+                        </div>
+                    </div>
+                    <button type="button" class="vt-tx__btn" data-action="SELECT_REFUND" data-value="{{id}}">{{../nowLabel}} <sf-symbol name="arrow.counterclockwise" aria-hidden="true"></sf-symbol></button>
+                </article>
+                {{/each}}
+                {{#if empty}}
+                <div class="vt-refund-empty">
+                    <sf-symbol name="magnifyingglass" aria-hidden="true"></sf-symbol>
+                    <p class="vt-title vt-title--small">{{emptyTitle}}</p>
+                    <p class="vt-text-secondary vt-text-center">{{emptyText}}</p>
+                </div>
+                {{/if}}
+            </div>
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: refund filter (period, time range, NSU) -->
+    <script id="screen-refund-filter" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=title}}
+            <div class="vt-view__body">
+                <p class="vt-title vt-title--small vt-refund-sub">{{subtitle}}</p>
+                <div class="vt-filter">
+                    <label class="vt-field">
+                        <span class="vt-field__label">{{periodLabel}}</span>
+                        <span class="vt-field__select">
+                            <select class="vt-field__control" data-field="period">
+                                <option value=""{{#if noPeriod}} selected{{/if}} disabled>{{periodPlaceholder}}</option>
+                                {{#each periods}}<option value="{{value}}"{{#if selected}} selected{{/if}}>{{label}}</option>{{/each}}
+                            </select>
+                            <sf-symbol name="chevron.down" aria-hidden="true"></sf-symbol>
+                        </span>
+                    </label>
+                    <div class="vt-field" role="group" aria-label="{{timeLabel}}">
+                        <span class="vt-field__label">{{timeLabel}}</span>
+                        <div class="vt-field__row">
+                            <button type="button" class="vt-time" data-ui="time-edit" data-field="start"><span class="vt-time__label"><sf-symbol name="clock" aria-hidden="true"></sf-symbol> {{startLabel}}</span><span class="vt-time__value">{{start}}</span></button>
+                            <button type="button" class="vt-time" data-ui="time-edit" data-field="end"><span class="vt-time__label"><sf-symbol name="clock" aria-hidden="true"></sf-symbol> {{endLabel}}</span><span class="vt-time__value">{{end}}</span></button>
+                        </div>
+                    </div>
+                    <label class="vt-field">
+                        <span class="vt-field__label">{{nsuLabel}}</span>
+                        <input type="text" inputmode="numeric" maxlength="12" class="vt-field__control" data-field="nsu" placeholder="{{nsuPlaceholder}}" value="{{nsu}}">
+                        <span class="vt-field__hint">{{optional}}</span>
+                    </label>
+                </div>
+            </div>
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: refund filter time entry (numeric keypad for HH:mm) -->
+    <script id="screen-refund-time" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=false title=title}}
+            {{> amount-display label=label amountText=timeText invalid=invalid empty=empty}}
+            <div class="vt-view__message">{{#if errorMessage}}{{> notification variant='error' message=errorMessage}}{{/if}}</div>
+            {{> keypad}}
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: refund confirmation ("Deseja realmente estornar?") -->
+    <script id="screen-refund-confirm" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true hideTitle=true title=question}}
+            <div class="vt-view__body vt-view__body--center">
+                <p class="vt-title" aria-hidden="true">{{question}}</p>
+                {{> transaction-summary rows=rows}}
+            </div>
+            <div class="vt-refund-confirm__actions">
+                <button type="button" class="btn btn--secondary btn--medium vt-btn" data-action="DECLINE_REFUND">{{no}}</button>
+                <button type="button" class="btn btn--primary btn--medium vt-btn" data-action="CONFIRM_REFUND">{{yes}}</button>
+            </div>
+        </section>
+    </script>
+
+    <!-- SCREEN: payment setup (type, installments, fees, brand, instant settlement, total) -->
+    <script id="screen-config" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=title}}
+            <div class="vt-view__body">
+                {{#if isCredit}}
+                <div class="vt-radios" role="radiogroup" aria-label="{{t 'config.credit'}}">
+                    {{#each creditRows}}{{> radio-row this}}{{/each}}
+                </div>
+                {{/if}}
+                {{#if isPix}}<p class="vt-text-secondary vt-config__pix-info">{{pixInfo}}</p>{{/if}}
+                {{#if showSettings}}
+                <div class="vt-settings">
+                    {{#each togglesTop}}{{> setting-toggle this}}{{/each}}
+                    {{#each togglesBottom}}{{> setting-toggle this}}{{/each}}
+                </div>
+                {{/if}}
+            </div>
+            <div class="vt-total">
+                <p class="vt-total__title" id="vt-total-title">{{t 'config.total'}}</p>
+                {{> transaction-summary rows=totalRows}}
+            </div>
+            {{> cta label=ctaLabel action='PAY' icon=ctaIcon variant='success'}}
+        </section>
+    </script>
+
+    <!-- SCREEN: installments picker -->
+    <script id="screen-installments" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=(t 'installments.title')}}
+            <div class="vt-view__body">
+                <div class="vt-radios" role="radiogroup" aria-label="{{t 'installments.title'}}">
+                    {{#each rows}}{{> radio-row this}}{{/each}}
+                </div>
+            </div>
+        </section>
+    </script>
+
+    <!-- SCREEN: waiting for / reading the card -->
+    <script id="screen-card" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=showBack hideTitle=(eq topTitle '') title=topTitle}}
+            <div class="vt-view__body vt-view__body--center">
+                <div class="vt-card-art{{#if reading}} vt-card-art--reading{{/if}}" aria-hidden="true">
+                    <div class="vt-card-art__card"><span class="vt-card-art__chip"></span></div>
+                    <sf-symbol class="vt-card-art__waves" name="wave.3.right"></sf-symbol>
+                </div>
+                {{#if amountText}}<p class="vt-charge">{{amountText}}</p>{{/if}}
+                <p class="vt-title" aria-hidden="true">{{title}}</p>
+                {{#if reading}}
+                {{> loader text=message}}
+                {{else}}
+                <p class="vt-text-secondary">{{message}}</p>
+                {{/if}}
+            </div>
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: PIN -->
+    <script id="screen-pin" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=false hideTitle=true title=(t 'pin.title')}}
+            <p class="vt-title" aria-hidden="true">{{t 'pin.title'}}</p>
+            {{> pin-input dots=dots ariaLabel=pinAriaLabel}}
+            <div class="vt-view__message">{{#if errorMessage}}{{> notification variant='error' message=errorMessage}}{{else}}<p class="vt-text-secondary vt-text-center">{{t 'pin.hint'}}</p>{{/if}}</div>
+            {{> keypad}}
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: processing -->
+    <script id="screen-processing" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            <div class="vt-view__body vt-view__body--center">
+                {{> loader large=true}}
+                <p class="vt-title" id="vt-title" role="heading" aria-level="1">{{title}}</p>
+                <p class="vt-text-secondary">{{message}}</p>
+            </div>
+        </section>
+    </script>
+
+    <!-- SCREEN: Pix -->
+    <script id="screen-pix" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            {{> topbar showBack=true title=(t 'pix.title')}}
+            <div class="vt-view__body vt-view__body--center">
+                <p class="vt-charge">{{amountText}}</p>
+                <div class="vt-qr" role="img" aria-label="{{t 'pix.qrLabel'}}">{{{qrSvg}}}</div>
+                <p class="vt-text-secondary vt-text-center">{{t 'pix.instruction'}}</p>
+                {{> loader text=waitingText}}
+            </div>
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: result (approved / declined / cancelled) -->
+    <script id="screen-result" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            <div class="vt-view__body">
+                <div class="vt-result vt-result--{{variant}}">
+                    <span class="vt-result__badge" aria-hidden="true"><sf-symbol name="{{icon}}"></sf-symbol></span>
+                    <p class="vt-title" id="vt-title" role="heading" aria-level="1">{{title}}</p>
+                    {{#if message}}<p class="vt-text-secondary vt-text-center">{{message}}</p>{{/if}}
+                </div>
+                {{#if rows}}{{> transaction-summary rows=rows flat=(eq variant 'success')}}{{/if}}
+            </div>
+            {{> actions}}
+        </section>
+    </script>
+
+    <!-- SCREEN: receipt -->
+    <script id="screen-receipt" type="text/x-handlebars-template">
+        <section class="vt-view" aria-labelledby="vt-title">
+            <p class="vt-title vt-title--small" id="vt-title" role="heading" aria-level="1">{{prompt}}</p>
+            <div class="vt-view__message">{{#if notice}}{{> notification variant='success' message=notice}}{{/if}}</div>
+            <div class="vt-view__body">
+                <article class="vt-receipt" aria-label="{{receiptTitle}}">
+                    <img class="vt-receipt__logo" src="assets/proofline.svg" alt="Proofline">
+                    <p class="vt-receipt__title">{{receiptTitle}}</p>
+                    {{> transaction-summary rows=rows}}
+                    <p class="vt-receipt__status"><span class="tag tag--success">{{statusTag}}</span></p>
+                </article>
+            </div>
+            {{#if printing}}{{> loader text=printingText}}{{/if}}
+            {{> actions}}
+        </section>
+    </script>
+
+    
+    <script src="vendor/handlebars.min.js"></script>
+    <script src="vendor/sf-symbols/sf-symbol.js" data-endpoint="https://sf-saas.cdn-apple.com"></script>
+    <script src="js/strings.js"></script>
+    <script src="js/format.js"></script>
+    <script src="js/payment-engine.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/screens.js"></script>
+    <script src="js/simulator.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        /* main.js waits for the canvas-ready event; there is no canvas here, so fire it once everything is loaded */
+        document.dispatchEvent(new Event('davinci:canvas:ready'));
+
+        /* Fit the phone + simulator inside the frame instead of cropping them */
+        (function() {
+            var page = document.querySelector('.vt-page');
+            function fit() {
+                page.style.transform = 'none';
+                /* width only: the parent resizes the frame to the content height, so height must not feed back into the scale */
+                var scale = Math.min(1, (window.innerWidth - 32) / page.offsetWidth);
+                /* origin is the top-left corner, so shift right by half the leftover width to center it */
+                var shift = Math.max(0, (window.innerWidth - 32 - page.offsetWidth * scale) / 2);
+                page.style.transform = 'translateX(' + shift + 'px) scale(' + scale + ')';
+                /* tell the parent page how tall the scaled content is so it can drop the empty space below */
+                if (window.parent !== window) {
+                    window.parent.postMessage({ type: 'embed-height', height: Math.ceil(page.offsetHeight * scale + 32) }, '*');
+                }
+            }
+            window.addEventListener('resize', fit);
+            fit();
+        })();
+    </script>
+</body>
+</html>
