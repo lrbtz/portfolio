@@ -1,0 +1,253 @@
+/* Phone shell: device body, status bar, screen/view layout, top bar, pill buttons, CTA and cancel sheet (css/terminal.css) */
+
+.vt-device {
+    padding: 12px;
+    border-radius: 58px;
+    background: var(--vt-midnight);
+    box-shadow: inset 0 0 0 2px var(--vt-deep-blue); /* no outer shadow: the frame clips it into a visible box */
+}
+
+.vt-terminal {
+    position: relative;
+    width: 432px;
+    height: 768px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 46px;
+    background: #fff;
+    color: var(--vt-midnight);
+}
+.vt-island {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    z-index: 4;
+    width: 112px;
+    height: 32px;
+    transform: translateX(-50%);
+    border-radius: 16px;
+    background: #000;
+}
+
+.vt-statusbar {
+    flex: none;
+    height: 54px;
+    padding: 16px 30px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: 600;
+}
+.vt-statusbar__time { font-variant-numeric: tabular-nums; }
+.vt-statusbar__icons { display: flex; gap: 6px; font-size: 16px; }
+
+.vt-screen {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    outline: none;
+}
+
+.vt-view {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px 24px;
+    animation: vt-enter 0.18s ease-out;
+}
+
+.vt-view__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vt-view__body--center {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.vt-view__message:empty { display: none; }
+
+.vt-view__actions {
+    flex: none;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.vt-view__actions:empty { display: none; }
+
+.vt-topbar {
+    flex: none;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.vt-topbar__back,
+.vt-topbar__spacer { width: 44px; height: 44px; flex: none; }
+
+.vt-topbar__back {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--vt-midnight);
+    font-size: 24px;
+    cursor: pointer;
+}
+.vt-topbar__back:hover { background: var(--vt-silk); }
+.vt-topbar__back:active { background: var(--vt-rose-primary); }
+
+.vt-topbar__title { margin: 0; font-size: 17px; font-weight: 600; text-align: center; }
+
+/* Pill buttons: MDS .btn restyled for touch and the Proofline palette, scoped to the phone */
+.vt-terminal .vt-btn {
+    width: 100%;
+    min-height: 56px;
+    max-height: none;
+    padding: 0 20px;
+    border-radius: 999px;
+    border-width: 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: center;
+}
+.vt-terminal .vt-btn sf-symbol { font-size: 20px; }
+
+.vt-terminal .btn--primary { background-color: var(--vt-midnight); border-color: var(--vt-midnight); color: #fff; }
+.vt-terminal .btn--primary:hover,
+.vt-terminal .btn--primary:focus { background-color: var(--vt-deep-blue); border-color: var(--vt-deep-blue); }
+.vt-terminal .btn--primary:active { background-color: var(--vt-blue-violet-tertiary); transform: scale(0.98); }
+
+.vt-terminal .btn--secondary { background-color: var(--vt-silk); border-color: var(--vt-silk); color: var(--vt-midnight); }
+.vt-terminal .btn--secondary:hover,
+.vt-terminal .btn--secondary:focus { background-color: var(--vt-rose-primary); border-color: var(--vt-rose-primary); }
+.vt-terminal .btn--secondary:active { background-color: var(--vt-rose-secondary); transform: scale(0.98); }
+
+.vt-terminal .btn--link { background: transparent; border-color: transparent; color: var(--vt-midnight); text-decoration: underline; text-underline-offset: 4px; }
+.vt-terminal .btn--link:hover,
+.vt-terminal .btn--link:focus { background: var(--vt-silk); color: var(--vt-midnight); }
+
+/* Outline button (Nova venda): same pill shape as the other buttons */
+.vt-terminal .btn--outline { background-color: #fff; border: 2px solid var(--vt-midnight); color: var(--vt-midnight); }
+.vt-terminal .btn--outline:hover,
+.vt-terminal .btn--outline:focus { background-color: var(--vt-silk); }
+.vt-terminal .btn--outline:active { transform: scale(0.98); }
+
+.vt-terminal .btn--danger { background-color: var(--vt-danger); border-color: var(--vt-danger); color: #fff; }
+.vt-terminal .btn--danger:hover,
+.vt-terminal .btn--danger:focus { background-color: #A00000; border-color: #A00000; }
+
+.vt-terminal .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Call to action: black-style pill with a contactless icon */
+.vt-cta {
+    flex: none;
+    width: 100%;
+    min-height: 64px;
+    padding: 0 20px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--vt-midnight);
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.08s ease, background-color 0.15s ease;
+}
+.vt-cta:hover { background: var(--vt-deep-blue); }
+.vt-cta:active { transform: scale(0.98); }
+.vt-cta:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.vt-cta--gradient { background: linear-gradient(90deg, var(--vt-midnight) 0%, var(--vt-purple-secondary) 62%, var(--vt-purple-primary) 100%); }
+.vt-cta--gradient:hover { background: linear-gradient(90deg, var(--vt-midnight) 0%, var(--vt-purple-secondary) 62%, var(--vt-purple-primary) 100%); filter: brightness(1.12); }
+.vt-cta--gradient .vt-cta__icon { background: linear-gradient(135deg, var(--vt-purple-tertiary), var(--vt-blue-violet-primary)); color: #fff; }
+.vt-cta--success { background: var(--vt-success); }
+.vt-cta--success:hover { background: var(--vt-success); filter: brightness(0.9); }
+.vt-cta--success .vt-cta__icon { color: var(--vt-success); }
+.vt-cta--outline { background: #fff; color: var(--vt-midnight); box-shadow: inset 0 0 0 2px var(--vt-midnight); }
+.vt-cta--outline:hover { background: #fff; } /* keeps the white state on hover (overrides the dark .vt-cta:hover) */
+.vt-cta--outline .vt-cta__icon { background: var(--vt-midnight); color: #fff; }
+.vt-cta--secondary { background: var(--vt-silk); color: var(--vt-midnight); }
+.vt-cta--secondary:hover { background: var(--vt-silk); filter: brightness(0.96); }
+.vt-cta__icon { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--vt-midnight); font-size: 18px; }
+.vt-cta__label { flex: 1; padding-right: 32px; font-size: 18px; font-weight: 500; text-align: center; }
+
+.vt-terminal button:focus-visible,
+.vt-sim button:focus-visible {
+    outline: 3px solid var(--vt-blue-violet-primary);
+    outline-offset: 2px;
+}
+
+/* Cancel confirmation as a bottom sheet. Native <dialog> kept inside the screen (see index.html) */
+.vt-dialog-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 8px;
+    background: rgba(43, 20, 11, 0.55);
+}
+.vt-dialog-layer[hidden] { display: none; }
+
+.vt-dialog {
+    position: relative;
+    inset: auto;
+    margin: 0;
+    width: 100%;
+    padding: 24px 20px 20px;
+    border: 0;
+    border-radius: 38px;
+    background: #fff;
+    color: var(--vt-midnight);
+    animation: vt-sheet 0.22s ease-out;
+}
+
+.vt-dialog__title { margin: 0 0 8px; font-size: 22px; font-weight: 700; text-align: center; }
+.vt-dialog__text { margin: 0 0 20px; font-size: 16px; text-align: center; color: var(--vt-text-secondary); }
+.vt-dialog__actions { display: flex; flex-direction: column; gap: 8px; }
+
+.vt-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes vt-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes vt-sheet {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-view, .vt-dialog { animation: none; }
+    .vt-terminal .btn, .vt-cta { transition: none; }
+}

@@ -1,0 +1,35 @@
+/* Maquininha App — entry stylesheet (css/main.css)
+ * Proofline palette tokens (scoped to .vt-page) + page layout. Feature files are imported below.
+ * No padding on the page wrapper: canvas .content already has it.
+ */
+@import url('terminal.css');
+@import url('keypad.css');
+@import url('screens.css');
+
+.vt-page {
+    /* Proofline palette */
+    --vt-midnight: #2B140B;
+    --vt-deep-blue: #4A2414;
+    --vt-blue-violet-tertiary: #7A3A22;
+    --vt-purple-secondary: #8A4529;
+    --vt-purple-primary: #A24E2E;
+    --vt-purple-tertiary: #C0673F;
+    --vt-blue-violet-primary: #B85A36;
+    --vt-blue-violet-secondary: #C99A86;
+    --vt-cornflower-secondary: #B07A5E;
+    --vt-cornflower-primary: #D9B49E;
+    --vt-cornflower-tertiary: #EAD3C4;
+    --vt-rose-secondary: #DBC6C6;
+    --vt-rose-primary: #EAE3E3;
+    --vt-silk: #F2EDED;
+    --vt-success: #029B0D;
+
+    /* Derived (not in the palette): accessible text and error colors on Silk/white */
+    --vt-text-secondary: #6B5A52;
+    --vt-danger: #C20000;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--space-l);
+}
